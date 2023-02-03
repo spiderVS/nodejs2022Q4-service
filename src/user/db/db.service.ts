@@ -2,6 +2,8 @@ import { Injectable } from '@nestjs/common';
 import { User } from '../../user/interfaces/user.interface';
 import { CreateUser } from '../interfaces/create-user.interface';
 import { UpdatePassword } from '../interfaces/update-user-password.interface';
+import { v4 as uuidv4 } from 'uuid';
+import { UserDTO } from '../dto/user.dto';
 
 class DBEntity<T extends { id: string }> {
   entities: T[] = [];
@@ -9,13 +11,15 @@ class DBEntity<T extends { id: string }> {
   async getOneById(id: string) {
     const entity = this.entities.find((el: T) => el.id === id);
     if (!entity) {
-      throw new Error(`Entity with id ${id} not found`);
+      const notFoundError = new Error(`Entity with id ${id} not found`);
+      notFoundError.name = 'NOT_FOUND';
+      throw notFoundError;
     }
-    return entity;
+    return new UserDTO({ ...entity });
   }
 
   async getAll() {
-    return this.entities;
+    return this.entities.map((el) => new UserDTO({ ...el }));
   }
 }
 
@@ -26,19 +30,23 @@ class DBUsers extends DBEntity<User> {
       version: 1,
       createdAt: Date.now(),
       updatedAt: Date.now(),
-      id: crypto.randomUUID(),
+      id: uuidv4(),
     };
     this.entities.push(created);
-    return created;
+    return new UserDTO({ ...created });
   }
 
   public async update(id: string, changeDto: UpdatePassword) {
     const { oldPassword, newPassword } = changeDto;
     const idx = this.entities.findIndex((el) => el.id === id);
     if (idx === -1) {
-      throw new Error(`User with id ${id} not found`);
+      const notFoundError = new Error(`User with id ${id} not found`);
+      notFoundError.name = 'NOT_FOUND';
+      throw notFoundError;
     } else if (this.entities[idx].password !== oldPassword) {
-      throw new Error('Incorrect user password');
+      const incorrectPasswordError = new Error('Incorrect oldPassword');
+      incorrectPasswordError.name = 'INVALID_PASSWORD';
+      throw incorrectPasswordError;
     }
     const changed: User = {
       ...this.entities[idx],
@@ -47,7 +55,7 @@ class DBUsers extends DBEntity<User> {
       updatedAt: Date.now(),
     };
     this.entities.splice(idx, 1, changed);
-    return changed;
+    return new UserDTO({ ...changed });
   }
 
   public async delete(id: string) {
