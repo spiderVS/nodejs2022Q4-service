@@ -14,7 +14,7 @@ import {
   Res,
   UseInterceptors,
 } from '@nestjs/common';
-import { DbService } from './db/db.service';
+import { DbService } from '../db/db.service';
 import { CreateUserDTO } from './dto/create-user.dto';
 import { Response } from 'express';
 import { UpdatePasswordDTO } from './dto/update-user.dto';
