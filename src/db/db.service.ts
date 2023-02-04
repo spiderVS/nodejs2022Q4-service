@@ -5,6 +5,7 @@ import { UpdatePassword } from '../user/interfaces/update-user-password.interfac
 import { v4 as uuidv4 } from 'uuid';
 import { UserDTO } from '../user/dto/user.dto';
 import { Artist } from 'src/artist/interfaces/artist.interface';
+import { Track } from 'src/track/interfaces/track.interface';
 
 class DBEntity<T extends { id: string }> {
   entities: T[] = [];
@@ -110,22 +111,14 @@ class DBUsers extends DBEntity<User> {
   }
 }
 
-class DBArtists extends DBEntity<Artist> {
-  // async getOneById(id: string) {
-  //   const artist = await super.getOneById(id);
-  //   return new ArtistDTO({ ...artist });
-  // }
-  // async getAll() {
-  //   const users = await super.getAll();
-  //   return users.map((el) => new ArtistDTO({ ...el }));
-  // }
-}
+class DBArtists extends DBEntity<Artist> {}
+class DBTracks extends DBEntity<Track> {}
 
 @Injectable()
 export class DbService {
   public users = new DBUsers();
   public artists = new DBArtists();
-  // public tracks = new Entity();
+  public tracks = new DBTracks();
   // public albums = new Entity();
   // public favourites = new Entity();
 }
