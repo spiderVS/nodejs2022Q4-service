@@ -1,9 +1,10 @@
 import { Injectable } from '@nestjs/common';
-import { User } from '../../user/interfaces/user.interface';
-import { CreateUser } from '../interfaces/create-user.interface';
-import { UpdatePassword } from '../interfaces/update-user-password.interface';
+import { User } from '../user/interfaces/user.interface';
+import { CreateUser } from '../user/interfaces/create-user.interface';
+import { UpdatePassword } from '../user/interfaces/update-user-password.interface';
 import { v4 as uuidv4 } from 'uuid';
-import { UserDTO } from '../dto/user.dto';
+import { UserDTO } from '../user/dto/user.dto';
+import { Artist } from 'src/artist/interfaces/artist.interface';
 
 class DBEntity<T extends { id: string }> {
   entities: T[] = [];
@@ -15,15 +16,57 @@ class DBEntity<T extends { id: string }> {
       notFoundError.name = 'NOT_FOUND';
       throw notFoundError;
     }
-    return new UserDTO({ ...entity });
+    return entity;
   }
 
   async getAll() {
-    return this.entities.map((el) => new UserDTO({ ...el }));
+    return this.entities;
+  }
+
+  public async create(dto: any) {
+    const created: T = {
+      ...dto,
+      id: uuidv4(),
+    };
+    this.entities.push(created);
+    return created;
+  }
+
+  public async update(id: string, changeDto: any) {
+    const idx = this.entities.findIndex((el) => el.id === id);
+    if (idx === -1) {
+      const notFoundError = new Error(`Entity with id ${id} not found`);
+      notFoundError.name = 'NOT_FOUND';
+      throw notFoundError;
+    }
+    const changed: T = {
+      ...this.entities[idx],
+      ...changeDto,
+    };
+    this.entities.splice(idx, 1, changed);
+    return changed;
+  }
+
+  public async delete(id: string) {
+    const idx = this.entities.findIndex((el) => el.id === id);
+    if (idx === -1) {
+      throw new Error(`Entity with id ${id} not found`);
+    }
+    this.entities.splice(idx, 1);
   }
 }
 
 class DBUsers extends DBEntity<User> {
+  public async getOneById(id: string) {
+    const user = await super.getOneById(id);
+    return new UserDTO({ ...user });
+  }
+
+  public async getAll() {
+    const users = await super.getAll();
+    return users.map((el) => new UserDTO({ ...el }));
+  }
+
   public async create(dto: CreateUser) {
     const created: User = {
       ...dto,
@@ -67,10 +110,21 @@ class DBUsers extends DBEntity<User> {
   }
 }
 
+class DBArtists extends DBEntity<Artist> {
+  // async getOneById(id: string) {
+  //   const artist = await super.getOneById(id);
+  //   return new ArtistDTO({ ...artist });
+  // }
+  // async getAll() {
+  //   const users = await super.getAll();
+  //   return users.map((el) => new ArtistDTO({ ...el }));
+  // }
+}
+
 @Injectable()
 export class DbService {
   public users = new DBUsers();
-  // public artists = new Entity();
+  public artists = new DBArtists();
   // public tracks = new Entity();
   // public albums = new Entity();
   // public favourites = new Entity();
