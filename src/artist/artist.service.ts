@@ -1,5 +1,7 @@
 import { Injectable } from '@nestjs/common';
+import { Album } from 'src/album/interfaces/album.interface';
 import { DbService } from 'src/db/db.service';
+import { Track } from 'src/track/interfaces/track.interface';
 import { CreateArtistDTO } from './dto/create-artist.dto';
 
 @Injectable()
@@ -23,6 +25,26 @@ export class ArtistService {
   }
 
   async delete(id: string) {
-    return await this.dbService.artists.delete(id);
+    const deletedArtist = await this.dbService.artists.delete(id);
+
+    const relatedAlbums = await this.dbService.albums.getMany<
+      Album,
+      'artistId'
+    >('artistId', id);
+    relatedAlbums.forEach(
+      async (el) =>
+        await this.dbService.albums.update(el.id, { ...el, artistId: null }),
+    );
+
+    const relatedTracks = await this.dbService.tracks.getMany<
+      Track,
+      'artistId'
+    >('artistId', id);
+    relatedTracks.forEach(
+      async (el) =>
+        await this.dbService.tracks.update(el.id, { ...el, artistId: null }),
+    );
+
+    return deletedArtist;
   }
 }
