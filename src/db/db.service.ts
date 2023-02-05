@@ -6,9 +6,22 @@ import { v4 as uuidv4 } from 'uuid';
 import { UserDTO } from '../user/dto/user.dto';
 import { Artist } from 'src/artist/interfaces/artist.interface';
 import { Track } from 'src/track/interfaces/track.interface';
+import { Album } from 'src/album/interfaces/album.interface';
 
 class DBEntity<T extends { id: string }> {
   entities: T[] = [];
+
+  async getOne<T, K extends keyof T>(field: string, value: T[K]) {
+    const entity = this.entities.find((el) => el[field] === value);
+    if (!entity) {
+      const notFoundError = new Error(
+        `Entity with ${field} ${value} not found`,
+      );
+      notFoundError.name = 'NOT_FOUND';
+      throw notFoundError;
+    }
+    return entity;
+  }
 
   async getOneById(id: string) {
     const entity = this.entities.find((el: T) => el.id === id);
@@ -18,6 +31,11 @@ class DBEntity<T extends { id: string }> {
       throw notFoundError;
     }
     return entity;
+  }
+
+  async getMany<T, K extends keyof T>(field: string, value: T[K]) {
+    const entities = this.entities.filter((el) => el[field] === value);
+    return entities;
   }
 
   async getAll() {
@@ -113,12 +131,13 @@ class DBUsers extends DBEntity<User> {
 
 class DBArtists extends DBEntity<Artist> {}
 class DBTracks extends DBEntity<Track> {}
+class DBAlbums extends DBEntity<Album> {}
 
 @Injectable()
 export class DbService {
   public users = new DBUsers();
   public artists = new DBArtists();
   public tracks = new DBTracks();
-  // public albums = new Entity();
+  public albums = new DBAlbums();
   // public favourites = new Entity();
 }
