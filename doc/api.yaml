@@ -163,7 +163,6 @@ paths:
         in: path
         required: true
         schema:
-          format: uuid
           type: string
     get:
       tags:
@@ -310,7 +309,6 @@ paths:
         required: true
         schema:
           type: string
-          format: uuid
     get:
       tags:
         - Track
@@ -459,7 +457,6 @@ paths:
         required: true
         schema:
           type: string
-          format: uuid
     get:
       tags:
         - Album
@@ -577,7 +574,6 @@ paths:
         required: true
         schema:
           type: string
-          format: uuid
     get:
       tags:
         - Artist
@@ -660,7 +656,6 @@ paths:
         required: true
         schema:
           type: string
-          format: uuid
     post:
       tags:
         - Favorites
@@ -693,7 +688,6 @@ paths:
         required: true
         schema:
           type: string
-          format: uuid
     post:
       tags:
         - Favorites
