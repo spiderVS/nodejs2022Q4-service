@@ -9,7 +9,13 @@ export class ArtistService {
   constructor(private dbService: DbService) {}
 
   async findOne(id: string) {
-    return await this.dbService.artists.getOneById(id);
+    const artist = await this.dbService.artists.getOneById(id);
+    if (!artist) {
+      const notFoundError = new Error(`Artist with id ${id} not found`);
+      notFoundError.name = 'NOT_FOUND';
+      throw notFoundError;
+    }
+    return artist;
   }
 
   async findMany() {
@@ -21,11 +27,23 @@ export class ArtistService {
   }
 
   async update(id: string, updateArtistDTO: CreateArtistDTO) {
-    return await this.dbService.artists.update(id, updateArtistDTO);
+    const updatedArtist = await this.dbService.artists.update(
+      id,
+      updateArtistDTO,
+    );
+    if (!updatedArtist) {
+      const notFoundError = new Error(`Artist with id ${id} not found`);
+      notFoundError.name = 'NOT_FOUND';
+      throw notFoundError;
+    }
+    return updatedArtist;
   }
 
   async delete(id: string) {
     const deletedArtist = await this.dbService.artists.delete(id);
+    if (!deletedArtist) {
+      throw new Error(`Artist with id ${id} not found`);
+    }
 
     const relatedAlbums = await this.dbService.albums.getMany<
       Album,
@@ -45,6 +63,8 @@ export class ArtistService {
         await this.dbService.tracks.update(el.id, { ...el, artistId: null }),
     );
 
-    return deletedArtist;
+    await this.dbService.favourites.deleteFrom('artists', id);
+
+    return;
   }
 }
