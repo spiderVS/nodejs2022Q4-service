@@ -1,2 +1,2 @@
-FROM postgres:15.1
+FROM postgres:latest
 EXPOSE 5432
