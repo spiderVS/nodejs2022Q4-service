@@ -1,36 +1,55 @@
 import { Injectable } from '@nestjs/common';
 import { DbService } from 'src/db/db.service';
 import { CreateUserDTO } from './dto/create-user.dto';
-import { UserDTO } from './dto/user.dto';
 import { UpdatePassword } from './interfaces/update-user-password.interface';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
+import { UserEntity } from './entities/user.entity';
 
 @Injectable()
 export class UserService {
-  constructor(private dbService: DbService) {}
+  constructor(
+    @InjectRepository(UserEntity)
+    private userRepository: Repository<UserEntity>,
+  ) {}
 
   async findOne(id: string) {
-    const user = await this.dbService.users.getOneById(id);
+    const user = await this.userRepository.findOne({ where: { id: id } });
     if (!user) {
       const notFoundError = new Error(`User with id ${id} not found`);
       notFoundError.name = 'NOT_FOUND';
       throw notFoundError;
     }
-    return new UserDTO({ ...user });
+    return user.toResponse();
   }
 
   async findMany() {
-    const users = await this.dbService.users.getAll();
-    return users.map((el) => new UserDTO({ ...el }));
+    const users = await this.userRepository.find();
+    return users.map((user) => user.toResponse());
   }
 
   async create(createUserDTO: CreateUserDTO) {
-    const createdUser = await this.dbService.users.create(createUserDTO);
-    return new UserDTO({ ...createdUser });
+    const { login } = createUserDTO;
+    const existedUser = await this.userRepository.findOne({
+      where: { login: login },
+    });
+    if (existedUser) {
+      const userExistError = new Error(
+        `User with login ${login} already exists`,
+      );
+      userExistError.name = 'ENTITY_ALREADY_EXIST';
+      throw userExistError;
+    }
+
+    const createdUser = this.userRepository.create(createUserDTO);
+    return (await this.userRepository.save(createdUser)).toResponse();
   }
 
   async update(id: string, updateUserDTO: UpdatePassword) {
-    const { oldPassword } = updateUserDTO;
-    const userForUpdate = await this.dbService.users.getOneById(id);
+    const { oldPassword, newPassword } = updateUserDTO;
+    const userForUpdate = await this.userRepository.findOne({
+      where: { id: id },
+    });
     if (!userForUpdate) {
       const notFoundError = new Error(`User with id ${id} not found`);
       notFoundError.name = 'NOT_FOUND';
@@ -40,14 +59,17 @@ export class UserService {
       incorrectPasswordError.name = 'INVALID_PASSWORD';
       throw incorrectPasswordError;
     }
-    const updatedUser = await this.dbService.users.update(id, updateUserDTO);
+    const updatedUser = await this.userRepository.save({
+      ...userForUpdate,
+      password: newPassword,
+    });
 
-    return new UserDTO({ ...updatedUser });
+    return updatedUser.toResponse();
   }
 
   async delete(id: string) {
-    const deletedUser = await this.dbService.users.delete(id);
-    if (!deletedUser) {
+    const deletedUser = await this.userRepository.delete(id);
+    if (deletedUser.affected === 0) {
       throw new Error(`User with id ${id} not found`);
     }
     return;

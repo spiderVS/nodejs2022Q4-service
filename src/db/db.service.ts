@@ -70,33 +70,33 @@ class DBEntity<T extends { id: string }> {
 }
 
 class DBUsers extends DBEntity<User> {
-  public async create(dto: CreateUser) {
-    const created: User = {
-      ...dto,
-      version: 1,
-      createdAt: Date.now(),
-      updatedAt: Date.now(),
-      id: uuidv4(),
-    };
-    this.entities.push(created);
-    return created;
-  }
+  // public async create(dto: CreateUser) {
+  //   const created: User = {
+  //     ...dto,
+  //     version: 1,
+  //     createdAt: Date.now() ,
+  //     updatedAt: Date.now(),
+  //     id: uuidv4(),
+  //   };
+  //   this.entities.push(created);
+  //   return created;
+  // }
 
-  public async update(id: string, changeDto: UpdatePassword) {
-    const { newPassword } = changeDto;
-    const idx = this.entities.findIndex((el) => el.id === id);
-    if (idx === -1) {
-      return null;
-    }
-    const changed: User = {
-      ...this.entities[idx],
-      password: newPassword,
-      version: this.entities[idx].version + 1,
-      updatedAt: Date.now(),
-    };
-    this.entities.splice(idx, 1, changed);
-    return changed;
-  }
+  // public async update(id: string, changeDto: UpdatePassword) {
+  //   const { newPassword } = changeDto;
+  //   const idx = this.entities.findIndex((el) => el.id === id);
+  //   if (idx === -1) {
+  //     return null;
+  //   }
+  //   const changed: User = {
+  //     ...this.entities[idx],
+  //     password: newPassword,
+  //     version: this.entities[idx].version + 1,
+  //     updatedAt: Date.now(),
+  //   };
+  //   this.entities.splice(idx, 1, changed);
+  //   return changed;
+  // }
 }
 
 class DBArtists extends DBEntity<Artist> {}

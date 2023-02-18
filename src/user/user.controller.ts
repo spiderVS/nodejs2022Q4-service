@@ -1,6 +1,7 @@
 import {
   Body,
   ClassSerializerInterceptor,
+  ConflictException,
   Controller,
   Delete,
   ForbiddenException,
@@ -43,7 +44,11 @@ export class UserController {
   @UseInterceptors(ClassSerializerInterceptor)
   @Post()
   async create(@Body() createUserDTO: CreateUserDTO) {
-    return await this.userService.create(createUserDTO);
+    try {
+      return await this.userService.create(createUserDTO);
+    } catch (error) {
+      throw new ConflictException(error.message);
+    }
   }
 
   @UseInterceptors(ClassSerializerInterceptor)

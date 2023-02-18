@@ -6,6 +6,9 @@ import { DbModule } from './db/db.module';
 import { UserModule } from './user/user.module';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import configService from './typeorm.config';
+import { UserEntity } from './user/entities/user.entity';
 
 @Module({
   imports: [
@@ -15,7 +18,8 @@ import { ConfigModule } from '@nestjs/config';
     ArtistModule,
     DbModule,
     UserModule,
-    ConfigModule.forRoot(),
+    ConfigModule.forRoot({ isGlobal: true, envFilePath: '../.env' }),
+    TypeOrmModule.forRoot(configService),
   ],
   controllers: [],
   providers: [],

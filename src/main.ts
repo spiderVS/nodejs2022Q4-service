@@ -3,7 +3,11 @@ import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { SwaggerModule } from '@nestjs/swagger';
 import YAML = require('yamljs');
+import 'reflect-metadata';
+import { AppDataSource } from './data-source';
+import * as dotenv from 'dotenv';
 
+dotenv.config();
 async function bootstrap() {
   const PORT = parseInt(process.env.PORT, 10) || 4000;
   const app = await NestFactory.create(AppModule);
