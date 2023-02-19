@@ -36,7 +36,11 @@ export class AlbumController {
 
   @Post()
   async create(@Body() createAlbumDTO: CreateAlbumDTO) {
-    return await this.albumService.create(createAlbumDTO);
+    try {
+      return await this.albumService.create(createAlbumDTO);
+    } catch (error) {
+      throw new NotFoundException(error.message);
+    }
   }
 
   @Put(':id')
