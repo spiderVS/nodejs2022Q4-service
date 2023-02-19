@@ -1,15 +1,20 @@
 import { Injectable } from '@nestjs/common';
+import { InjectRepository } from '@nestjs/typeorm';
 import { Album } from 'src/album/interfaces/album.interface';
-import { DbService } from 'src/db/db.service';
 import { Track } from 'src/track/interfaces/track.interface';
+import { Repository } from 'typeorm';
 import { CreateArtistDTO } from './dto/create-artist.dto';
+import { ArtistEntity } from './entities/artist.entity';
 
 @Injectable()
 export class ArtistService {
-  constructor(private dbService: DbService) {}
+  constructor(
+    @InjectRepository(ArtistEntity)
+    private artistRepository: Repository<ArtistEntity>,
+  ) {}
 
   async findOne(id: string) {
-    const artist = await this.dbService.artists.getOneById(id);
+    const artist = await this.artistRepository.findOne({ where: { id: id } });
     if (!artist) {
       const notFoundError = new Error(`Artist with id ${id} not found`);
       notFoundError.name = 'NOT_FOUND';
@@ -19,51 +24,54 @@ export class ArtistService {
   }
 
   async findMany() {
-    return this.dbService.artists.getAll();
+    return this.artistRepository.find();
   }
 
   async create(createArtistDTO: CreateArtistDTO) {
-    return await this.dbService.artists.create(createArtistDTO);
+    const createdArtist = this.artistRepository.create(createArtistDTO);
+    return await this.artistRepository.save(createdArtist);
   }
 
   async update(id: string, updateArtistDTO: CreateArtistDTO) {
-    const updatedArtist = await this.dbService.artists.update(
-      id,
-      updateArtistDTO,
-    );
-    if (!updatedArtist) {
+    const artistForUpdate = await this.artistRepository.findOne({
+      where: { id: id },
+    });
+    if (!artistForUpdate) {
       const notFoundError = new Error(`Artist with id ${id} not found`);
       notFoundError.name = 'NOT_FOUND';
       throw notFoundError;
     }
+    const updatedArtist = await this.artistRepository.save(
+      Object.assign(artistForUpdate, updateArtistDTO),
+    );
     return updatedArtist;
   }
 
   async delete(id: string) {
-    const deletedArtist = await this.dbService.artists.delete(id);
-    if (!deletedArtist) {
+    const deletedArtist = await this.artistRepository.delete(id);
+    if (deletedArtist.affected === 0) {
       throw new Error(`Artist with id ${id} not found`);
     }
 
-    const relatedAlbums = await this.dbService.albums.getMany<
-      Album,
-      'artistId'
-    >('artistId', id);
-    relatedAlbums.forEach(
-      async (el) =>
-        await this.dbService.albums.update(el.id, { ...el, artistId: null }),
-    );
+    // const relatedAlbums = await this.dbService.albums.getMany<
+    //   Album,
+    //   'artistId'
+    // >('artistId', id);
+    // relatedAlbums.forEach(
+    //   async (el) =>
+    //     await this.dbService.albums.update(el.id, { ...el, artistId: null }),
+    // );
 
-    const relatedTracks = await this.dbService.tracks.getMany<
-      Track,
-      'artistId'
-    >('artistId', id);
-    relatedTracks.forEach(
-      async (el) =>
-        await this.dbService.tracks.update(el.id, { ...el, artistId: null }),
-    );
+    // const relatedTracks = await this.dbService.tracks.getMany<
+    //   Track,
+    //   'artistId'
+    // >('artistId', id);
+    // relatedTracks.forEach(
+    //   async (el) =>
+    //     await this.dbService.tracks.update(el.id, { ...el, artistId: null }),
+    // );
 
-    await this.dbService.favourites.deleteFrom('artists', id);
+    // await this.dbService.favourites.deleteFrom('artists', id);
 
     return;
   }
