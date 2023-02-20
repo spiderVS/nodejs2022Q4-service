@@ -12,6 +12,8 @@
 
 ```bash
 git clone {repository URL}
+
+git checkout postgres-docker
 ```
 
 ## Add .env file
