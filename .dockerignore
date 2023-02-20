@@ -19,6 +19,7 @@ lerna-debug.log*
 /.nyc_output
 
 # IDEs and editors
+.vscode/*
 /.idea
 .project
 .classpath
@@ -27,12 +28,8 @@ lerna-debug.log*
 .settings/
 *.sublime-workspace
 
-# IDE - VSCode
-.vscode/*
-!.vscode/settings.json
-!.vscode/tasks.json
-!.vscode/launch.json
-!.vscode/extensions.json
+# git repo
+/.git
 
-# ENV
-.env
+# postgres database data and logs
+/database
