@@ -1,7 +1,5 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Album } from 'src/album/interfaces/album.interface';
-import { Track } from 'src/track/interfaces/track.interface';
 import { Repository } from 'typeorm';
 import { CreateArtistDTO } from './dto/create-artist.dto';
 import { ArtistEntity } from './entities/artist.entity';
@@ -24,7 +22,7 @@ export class ArtistService {
   }
 
   async findMany() {
-    return this.artistRepository.find();
+    return await this.artistRepository.find();
   }
 
   async create(createArtistDTO: CreateArtistDTO) {
@@ -52,27 +50,6 @@ export class ArtistService {
     if (deletedArtist.affected === 0) {
       throw new Error(`Artist with id ${id} not found`);
     }
-
-    // const relatedAlbums = await this.dbService.albums.getMany<
-    //   Album,
-    //   'artistId'
-    // >('artistId', id);
-    // relatedAlbums.forEach(
-    //   async (el) =>
-    //     await this.dbService.albums.update(el.id, { ...el, artistId: null }),
-    // );
-
-    // const relatedTracks = await this.dbService.tracks.getMany<
-    //   Track,
-    //   'artistId'
-    // >('artistId', id);
-    // relatedTracks.forEach(
-    //   async (el) =>
-    //     await this.dbService.tracks.update(el.id, { ...el, artistId: null }),
-    // );
-
-    // await this.dbService.favourites.deleteFrom('artists', id);
-
     return;
   }
 }

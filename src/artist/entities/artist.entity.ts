@@ -1,5 +1,13 @@
 import { AlbumEntity } from 'src/album/entities/album.entity';
-import { Column, Entity, OneToMany, PrimaryGeneratedColumn } from 'typeorm';
+import { FavArtistEntity } from 'src/favourites/entities/favAristId.entity';
+import { TrackEntity } from 'src/track/entities/track.entity';
+import {
+  Column,
+  Entity,
+  OneToMany,
+  OneToOne,
+  PrimaryGeneratedColumn,
+} from 'typeorm';
 
 @Entity('artist')
 export class ArtistEntity {
@@ -14,4 +22,10 @@ export class ArtistEntity {
 
   @OneToMany(() => AlbumEntity, (album) => album.artist)
   albums: AlbumEntity[];
+
+  @OneToMany(() => TrackEntity, (track) => track.artist)
+  tracks: TrackEntity[];
+
+  @OneToOne(() => FavArtistEntity, (favId) => favId.artist)
+  favArtistId: string;
 }
