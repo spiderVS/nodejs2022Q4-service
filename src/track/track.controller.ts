@@ -36,7 +36,11 @@ export class TrackController {
 
   @Post()
   async create(@Body() createTrackDTO: CreateTrackDTO) {
-    return await this.trackService.create(createTrackDTO);
+    try {
+      return await this.trackService.create(createTrackDTO);
+    } catch (error) {
+      throw new NotFoundException(error.message);
+    }
   }
 
   @Put(':id')

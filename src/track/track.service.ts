@@ -1,13 +1,18 @@
 import { Injectable } from '@nestjs/common';
-import { DbService } from 'src/db/db.service';
+import { InjectRepository } from '@nestjs/typeorm';
+import { Repository } from 'typeorm';
 import { CreateTrackDTO } from './dto/create-track.dto';
+import { TrackEntity } from './entities/track.entity';
 
 @Injectable()
 export class TrackService {
-  constructor(private dbService: DbService) {}
+  constructor(
+    @InjectRepository(TrackEntity)
+    private trackRepository: Repository<TrackEntity>,
+  ) {}
 
   async findOne(id: string) {
-    const track = await this.dbService.tracks.getOneById(id);
+    const track = await this.trackRepository.findOne({ where: { id: id } });
     if (!track) {
       const notFoundError = new Error(`Track with id ${id} not found`);
       notFoundError.name = 'NOT_FOUND';
@@ -17,29 +22,47 @@ export class TrackService {
   }
 
   async findMany() {
-    return this.dbService.tracks.getAll();
+    return await this.trackRepository.find();
   }
 
   async create(createTrackDTO: CreateTrackDTO) {
-    return await this.dbService.tracks.create(createTrackDTO);
+    const { artistId } = createTrackDTO;
+    try {
+      const createdTrack = this.trackRepository.create(createTrackDTO);
+      return await this.trackRepository.save(createdTrack);
+    } catch (error) {
+      const notFoundError = new Error(`Artist with id ${artistId} not exist`);
+      notFoundError.name = 'NOT_FOUND';
+      throw notFoundError;
+    }
   }
 
   async update(id: string, updateTrackDTO: CreateTrackDTO) {
-    const updatedTrack = await this.dbService.tracks.update(id, updateTrackDTO);
-    if (!updatedTrack) {
+    const { artistId } = updateTrackDTO;
+    const trackForUpdate = await this.trackRepository.findOne({
+      where: { id: id },
+    });
+    if (!trackForUpdate) {
       const notFoundError = new Error(`Track with id ${id} not found`);
       notFoundError.name = 'NOT_FOUND';
       throw notFoundError;
     }
-    return updatedTrack;
+
+    try {
+      const updatedTrack = await this.trackRepository.save(
+        Object.assign(trackForUpdate, updateTrackDTO),
+      );
+      return updatedTrack;
+    } catch (error) {
+      throw new Error(`Artist with id ${artistId} not exist`);
+    }
   }
 
   async delete(id: string) {
-    const deletedTrack = await this.dbService.tracks.delete(id);
-    if (!deletedTrack) {
+    const deletedTrack = await this.trackRepository.delete(id);
+    if (deletedTrack.affected === 0) {
       throw new Error(`Track with id ${id} not found`);
     }
-    await this.dbService.favourites.deleteFrom('tracks', id);
     return;
   }
 }
