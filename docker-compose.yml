@@ -16,6 +16,7 @@ services:
       - PORT=${PORT}
     volumes:
       - ./src:/usr/app/src
+    command: npm run start:dev_migrations_run
 
   db:
     restart: always
