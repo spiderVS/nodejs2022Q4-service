@@ -6,7 +6,7 @@ import { UserModule } from './user/user.module';
 import { Module } from '@nestjs/common';
 import { ConfigModule } from '@nestjs/config';
 import { TypeOrmModule } from '@nestjs/typeorm';
-import configService from './typeorm.config';
+import { dataSourceConfig } from '../db/typeorm.config';
 
 @Module({
   imports: [
@@ -16,7 +16,7 @@ import configService from './typeorm.config';
     ArtistModule,
     UserModule,
     ConfigModule.forRoot({ isGlobal: true, envFilePath: '../.env' }),
-    TypeOrmModule.forRoot(configService),
+    TypeOrmModule.forRoot(dataSourceConfig),
   ],
   controllers: [],
   providers: [],
