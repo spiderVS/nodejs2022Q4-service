@@ -1,28 +1,53 @@
 import { Injectable } from '@nestjs/common';
-import { DbService } from 'src/db/db.service';
+import { InjectRepository } from '@nestjs/typeorm';
+import { AlbumEntity } from 'src/album/entities/album.entity';
+import { ArtistEntity } from 'src/artist/entities/artist.entity';
+import { TrackEntity } from 'src/track/entities/track.entity';
+import { Repository } from 'typeorm';
+import { FavAlbumEntity } from './entities/favAlbumId.entity';
+import { FavArtistEntity } from './entities/favAristId.entity';
+import { FavTrackEntity } from './entities/favTrackId.entity';
 import { Favorites } from './interfaces/favourites.interface';
 
 @Injectable()
 export class FavouritesService {
-  constructor(private dbService: DbService) {}
+  constructor(
+    @InjectRepository(FavArtistEntity)
+    private favArtistsRepository: Repository<FavArtistEntity>,
+    @InjectRepository(FavTrackEntity)
+    private favTracksRepository: Repository<FavTrackEntity>,
+    @InjectRepository(FavAlbumEntity)
+    private favAlbumsRepository: Repository<FavAlbumEntity>,
+
+    @InjectRepository(ArtistEntity)
+    private artistRepository: Repository<ArtistEntity>,
+    @InjectRepository(AlbumEntity)
+    private albumRepository: Repository<AlbumEntity>,
+    @InjectRepository(TrackEntity)
+    private trackRepository: Repository<TrackEntity>,
+  ) {}
 
   async getAll() {
-    const favsIds = await this.dbService.favourites.getAll();
+    const favArtistsIds = await this.favArtistsRepository.find();
+    const favAlbumsIds = await this.favAlbumsRepository.find();
+    const favTracksIds = await this.favTracksRepository.find();
+
     const artists = await Promise.all(
-      favsIds.artists.map(
-        async (el) => await this.dbService.artists.getOneById(el),
+      favArtistsIds.map(
+        async (el) =>
+          await this.artistRepository.findOne({ where: { id: el.id } }),
       ),
     );
-
     const albums = await Promise.all(
-      favsIds.albums.map(
-        async (el) => await this.dbService.albums.getOneById(el),
+      favAlbumsIds.map(
+        async (el) =>
+          await this.albumRepository.findOne({ where: { id: el.id } }),
       ),
     );
-
     const tracks = await Promise.all(
-      favsIds.tracks.map(
-        async (el) => await this.dbService.tracks.getOneById(el),
+      favTracksIds.map(
+        async (el) =>
+          await this.trackRepository.findOne({ where: { id: el.id } }),
       ),
     );
 
@@ -34,25 +59,56 @@ export class FavouritesService {
   }
 
   async addTo(type: keyof Favorites, id: string) {
-    if (await this.isEntityExist(type, id)) {
-      await this.dbService.favourites.addTo(type, id);
-    } else {
+    try {
+      switch (type) {
+        case 'albums':
+          await this.favAlbumsRepository.save({ id } as FavAlbumEntity);
+          break;
+
+        case 'tracks':
+          await this.favTracksRepository.save({ id } as FavTrackEntity);
+          break;
+
+        case 'artists':
+          await this.favArtistsRepository.save({ id } as FavArtistEntity);
+          break;
+
+        default:
+          break;
+      }
+    } catch (error) {
       throw new Error(`Entity to add with id ${id} doesn't exist`);
     }
+
     return `Entity with id ${id} added to favorites ${type}`;
   }
 
   async deleteFrom(type: keyof Favorites, id: string) {
-    const isIdInFavourites = this.dbService.favourites.isAlreadyExist(type, id);
-    if (!isIdInFavourites) {
-      throw new Error(`Entity with id ${id} is not favourite`);
-    }
-    await this.dbService.favourites.deleteFrom(type, id);
-    return;
-  }
+    switch (type) {
+      case 'albums':
+        const deletedFavAlbum = await this.favAlbumsRepository.delete(id);
+        if (deletedFavAlbum.affected === 0) {
+          throw new Error(`Album with id ${id} is not favourite`);
+        }
+        break;
 
-  private async isEntityExist(type: keyof Favorites, id: string) {
-    const entity = await this.dbService[type].getOneById(id);
-    return !!entity;
+      case 'tracks':
+        const deletedFavTrack = await this.favTracksRepository.delete(id);
+        if (deletedFavTrack.affected === 0) {
+          throw new Error(`Track with id ${id} is not favourite`);
+        }
+        break;
+
+      case 'artists':
+        const deletedFavArtist = await this.favArtistsRepository.delete(id);
+        if (deletedFavArtist.affected === 0) {
+          throw new Error(`Artist with id ${id} is not favourite`);
+        }
+        break;
+
+      default:
+        break;
+    }
+    return;
   }
 }
