@@ -4,7 +4,6 @@ import { UpdatePassword } from './interfaces/update-user-password.interface';
 import { InjectRepository } from '@nestjs/typeorm';
 import { Repository } from 'typeorm';
 import { UserEntity } from './entities/user.entity';
-import { inspect } from 'util';
 
 @Injectable()
 export class UserService {
@@ -29,17 +28,19 @@ export class UserService {
   }
 
   async create(createUserDTO: CreateUserDTO) {
-    // const { login } = createUserDTO;
-    // const existedUser = await this.userRepository.findOne({
-    //   where: { login: login },
-    // });
-    // if (existedUser) {
-    //   const userExistError = new Error(
-    //     `User with login ${login} already exists`,
-    //   );
-    //   userExistError.name = 'ENTITY_ALREADY_EXIST';
-    //   throw userExistError;
-    // }
+    /* Additional check
+    const { login } = createUserDTO;
+    const existedUser = await this.userRepository.findOne({
+      where: { login: login },
+    });
+    if (existedUser) {
+      const userExistError = new Error(
+        `User with login ${login} already exists`,
+      );
+      userExistError.name = 'ENTITY_ALREADY_EXIST';
+      throw userExistError;
+    }
+  */
 
     const createdUser = this.userRepository.create(createUserDTO);
     return (await this.userRepository.save(createdUser)).toResponse();

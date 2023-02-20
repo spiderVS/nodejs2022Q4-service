@@ -4,7 +4,6 @@ import { AppModule } from './app.module';
 import { SwaggerModule } from '@nestjs/swagger';
 import YAML = require('yamljs');
 import 'reflect-metadata';
-import { AppDataSource } from './data-source';
 import * as dotenv from 'dotenv';
 
 dotenv.config();
