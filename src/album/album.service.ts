@@ -22,7 +22,7 @@ export class AlbumService {
   }
 
   async findMany() {
-    return this.albumRepository.find();
+    return await this.albumRepository.find();
   }
 
   async create(createAlbumDTO: CreateAlbumDTO) {
@@ -63,19 +63,6 @@ export class AlbumService {
     if (deletedAlbum.affected === 0) {
       throw new Error(`Album with id ${id} not found`);
     }
-
-    // const relatedTracks = await this.dbService.tracks.getMany<Track, 'albumId'>(
-    //   'albumId',
-    //   id,
-    // );
-
-    // relatedTracks.forEach(
-    //   async (el) =>
-    //     await this.dbService.tracks.update(el.id, { ...el, albumId: null }),
-    // );
-
-    // await this.dbService.favourites.deleteFrom('albums', id);
-
     return;
   }
 }
