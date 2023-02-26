@@ -1,5 +1,5 @@
 import { ConsoleLoggerOptions, Injectable, Scope } from '@nestjs/common';
-import { LoggerService, ConsoleLogger } from '@nestjs/common';
+import { ConsoleLogger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { DEFAULT_LOG_LEVEL, LOG_LEVELS } from './constants';
 
