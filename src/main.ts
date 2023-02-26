@@ -9,7 +9,13 @@ import * as dotenv from 'dotenv';
 dotenv.config();
 async function bootstrap() {
   const PORT = parseInt(process.env.PORT, 10) || 4000;
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(
+    AppModule /* , {
+    bufferLogs: true,
+  } */,
+  );
+  // app.useLogger(app.get(LoggingService));
+
   app.useGlobalPipes(new ValidationPipe());
 
   const swaggerDocument = YAML.load('./doc/api.yaml');
