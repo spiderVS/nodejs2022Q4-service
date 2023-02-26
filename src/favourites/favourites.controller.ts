@@ -9,10 +9,13 @@ import {
   Post,
   Res,
   UnprocessableEntityException,
+  UseInterceptors,
 } from '@nestjs/common';
 import { Response } from 'express';
+import { LoggerInterceptor } from 'src/logger/interceptors/res-logger-interceptor/logger.interceptor';
 import { FavouritesService } from './favourites.service';
 
+@UseInterceptors(LoggerInterceptor)
 @Controller('favs')
 export class FavouritesController {
   constructor(private favsService: FavouritesService) {}

@@ -8,6 +8,7 @@ import { FavTrackEntity } from './entities/favTrackId.entity';
 import { ArtistEntity } from 'src/artist/entities/artist.entity';
 import { AlbumEntity } from 'src/album/entities/album.entity';
 import { TrackEntity } from 'src/track/entities/track.entity';
+import { LoggingService } from 'src/logger/logging.service';
 
 @Module({
   imports: [
@@ -21,6 +22,6 @@ import { TrackEntity } from 'src/track/entities/track.entity';
     ]),
   ],
   controllers: [FavouritesController],
-  providers: [FavouritesService],
+  providers: [FavouritesService, LoggingService],
 })
 export class FavouritesModule {}

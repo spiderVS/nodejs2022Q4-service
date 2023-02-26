@@ -10,12 +10,15 @@ import {
   Post,
   Put,
   Res,
+  UseInterceptors,
 } from '@nestjs/common';
 import { Response } from 'express';
+import { LoggerInterceptor } from 'src/logger/interceptors/res-logger-interceptor/logger.interceptor';
 import { ArtistService } from './artist.service';
 import { CreateArtistDTO } from './dto/create-artist.dto';
 import { Artist } from './interfaces/artist.interface';
 
+@UseInterceptors(LoggerInterceptor)
 @Controller('artist')
 export class ArtistController {
   constructor(private artistService: ArtistService) {}

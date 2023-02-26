@@ -10,12 +10,15 @@ import {
   Post,
   Put,
   Res,
+  UseInterceptors,
 } from '@nestjs/common';
 import { Response } from 'express';
+import { LoggerInterceptor } from 'src/logger/interceptors/res-logger-interceptor/logger.interceptor';
 import { AlbumService } from './album.service';
 import { CreateAlbumDTO } from './dto/create-album.dto';
 import { Album } from './interfaces/album.interface';
 
+@UseInterceptors(LoggerInterceptor)
 @Controller('album')
 export class AlbumController {
   constructor(private albumService: AlbumService) {}

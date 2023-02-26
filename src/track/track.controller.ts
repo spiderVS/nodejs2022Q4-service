@@ -10,12 +10,15 @@ import {
   Post,
   Put,
   Res,
+  UseInterceptors,
 } from '@nestjs/common';
 import { CreateTrackDTO } from './dto/create-track.dto';
 import { Response } from 'express';
 import { Track } from './interfaces/track.interface';
 import { TrackService } from './track.service';
+import { LoggerInterceptor } from 'src/logger/interceptors/res-logger-interceptor/logger.interceptor';
 
+@UseInterceptors(LoggerInterceptor)
 @Controller('track')
 export class TrackController {
   constructor(private trackService: TrackService) {}

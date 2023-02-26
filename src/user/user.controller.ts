@@ -20,7 +20,9 @@ import { Response } from 'express';
 import { UpdatePasswordDTO } from './dto/update-user.dto';
 import { User } from './interfaces/user.interface';
 import { UserService } from './user.service';
+import { LoggerInterceptor } from 'src/logger/interceptors/res-logger-interceptor/logger.interceptor';
 
+@UseInterceptors(LoggerInterceptor)
 @Controller('user')
 export class UserController {
   constructor(private userService: UserService) {}
