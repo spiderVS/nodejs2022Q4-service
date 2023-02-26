@@ -10,7 +10,7 @@ export const dataSourceConfig = {
   username: process.env.POSTGRES_USER || 'postgres',
   password: process.env.POSTGRES_PASSWORD || 'postgres',
   database: process.env.POSTGRES_DB || 'postgres',
-  logging: true,
+  logging: false,
   entities: ['dist/**/*.entity.js'],
   migrations: ['dist/db/migrations/*.js'],
 } as DataSourceOptions;
