@@ -1,3 +1,6 @@
+import { UncaughtErrorService } from './uncaughterror.service';
+import { APP_FILTER } from '@nestjs/core';
+import { CustomExceptionsFilter } from './exception-filter/exception.filter';
 import { LoggingService } from './logger/logging.service';
 import { LoggerModule } from './logger/logger.module';
 import { FavouritesModule } from './favourites/favourites.module';
@@ -23,7 +26,14 @@ import { LoggerMiddleware } from './logger/middleware/logger.middleware';
     TypeOrmModule.forRoot(dataSourceConfig),
   ],
   controllers: [],
-  providers: [LoggingService],
+  providers: [
+    UncaughtErrorService,
+    {
+      provide: APP_FILTER,
+      useClass: CustomExceptionsFilter,
+    },
+    LoggingService,
+  ],
 })
 export class AppModule {
   configure(consumer: MiddlewareConsumer) {
