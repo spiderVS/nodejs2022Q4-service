@@ -6,9 +6,13 @@ import { LoggingService } from 'src/logger/logging.service';
 export class LoggerMiddleware implements NestMiddleware {
   constructor(private logger: LoggingService) {}
   use(req: Request, res: Response, next: NextFunction) {
-    const { method, url, body } = req;
+    const { method, url, body, query } = req;
     this.logger.setContext('REQUEST <- ');
-    this.logger.log(`${method} ${url} body: ${JSON.stringify(body)}`);
+    this.logger.log(
+      `${method} ${url} queryParams: ${JSON.stringify(
+        query,
+      )} body: ${JSON.stringify(body)}`,
+    );
     next();
   }
 }
