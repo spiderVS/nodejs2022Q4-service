@@ -1,10 +1,44 @@
-import { Module } from '@nestjs/common';
-import { AppController } from './app.controller';
-import { AppService } from './app.service';
+import { UncaughtErrorService } from './uncaughterror.service';
+import { APP_FILTER } from '@nestjs/core';
+import { CustomExceptionsFilter } from './exception-filter/exception.filter';
+import { LoggingService } from './logger/logging.service';
+import { LoggerModule } from './logger/logger.module';
+import { FavouritesModule } from './favourites/favourites.module';
+import { AlbumModule } from './album/album.module';
+import { TrackModule } from './track/track.module';
+import { ArtistModule } from './artist/artist.module';
+import { UserModule } from './user/user.module';
+import { MiddlewareConsumer, Module, RequestMethod } from '@nestjs/common';
+import { ConfigModule } from '@nestjs/config';
+import { TypeOrmModule } from '@nestjs/typeorm';
+import { dataSourceConfig } from '../db/typeorm.config';
+import { LoggerMiddleware } from './logger/middleware/logger.middleware';
 
 @Module({
-  imports: [],
-  controllers: [AppController],
-  providers: [AppService],
+  imports: [
+    LoggerModule,
+    FavouritesModule,
+    AlbumModule,
+    TrackModule,
+    ArtistModule,
+    UserModule,
+    ConfigModule.forRoot({ isGlobal: true, envFilePath: '../.env' }),
+    TypeOrmModule.forRoot(dataSourceConfig),
+  ],
+  controllers: [],
+  providers: [
+    UncaughtErrorService,
+    {
+      provide: APP_FILTER,
+      useClass: CustomExceptionsFilter,
+    },
+    LoggingService,
+  ],
 })
-export class AppModule {}
+export class AppModule {
+  configure(consumer: MiddlewareConsumer) {
+    consumer
+      .apply(LoggerMiddleware)
+      .forRoutes({ path: '*', method: RequestMethod.ALL });
+  }
+}
