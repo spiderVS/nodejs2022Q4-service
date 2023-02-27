@@ -22,8 +22,3 @@ async function bootstrap() {
   await app.listen(PORT);
 }
 bootstrap();
-
-// setTimeout(() => Promise.reject(new Error('unhandledRejection test')), 5000);
-// setTimeout(() => {
-//   throw new Error('uncaughtException test');
-// }, 10000);
