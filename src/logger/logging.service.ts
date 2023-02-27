@@ -23,23 +23,23 @@ export class LoggingService extends ConsoleLogger {
     });
   }
 
-  // error(message: string, stack?: string, context?: string) {
-  //   super.error.apply(this, [message, stack, context]);
-  // }
+  error(message: any, stack?: string) {
+    super.error.apply(this, [message, stack]);
+  }
 
-  // warn(message: string, context?: string) {
-  //   super.warn.apply(this, [message, context]);
-  // }
+  warn(message: any) {
+    super.warn.apply(this, [message]);
+  }
 
-  log(message: string) {
+  log(message: any) {
     super.log.apply(this, [message]);
   }
 
-  // verbose(message: string, context?: string) {
-  //   super.debug.apply(this, [message, context]);
-  // }
+  verbose(message: any) {
+    super.debug.apply(this, [message]);
+  }
 
-  // debug(message: string, context?: string) {
-  //   super.debug.apply(this, [message, context]);
-  // }
+  debug(message: any) {
+    super.debug.apply(this, [message]);
+  }
 }
